@@ -69,7 +69,6 @@ class Spider(Spider):
         result['limit'] = 90
         result['total'] = 999999
         return result
-        pass
 
     def detailContent(self, ids):
         data=pq(self.fetch(f'{self.host}{ids[0]}', headers=self.headers).text)
