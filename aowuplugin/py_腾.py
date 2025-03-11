@@ -231,15 +231,14 @@ class Spider(Spider):
             return self.handle_exception(e, "Error processing detail")
 
     def searchContent(self, key, quick, pg="1"):
-        body = {"version": "24072901", "clientType": 1, "filterValue": "", "uuid": str(uuid.uuid4()), "retry": 0,
-                "query": key, "pagenum": int(pg) - 1, "pagesize": 30, "queryFrom": 0, "searchDatakey": "",
-                "transInfo": "", "isneedQc": True, "preQid": "", "adClientInfo": "",
-                "extraInfo": {"isNewMarkLabel": "1", "multi_terminal_pc": "1"}}
+        headers = self.headers.copy()
+        headers.update({'Content-Type': 'application/json'})
+        body = {'version':'25021101','clientType':1,'filterValue':'','uuid':str(uuid.uuid4()),'retry':0,'query':key,'pagenum':int(pg)-1,'pagesize':30,'queryFrom':0,'searchDatakey':'','transInfo':'','isneedQc':True,'preQid':'','adClientInfo':'','extraInfo':{'isNewMarkLabel':'1','multi_terminal_pc':'1','themeType':'1',},}
         data = self.post(f'{self.apihost}/trpc.videosearch.mobile_search.MultiTerminalSearch/MbSearch?vplatform=2',
-                         json=body, headers=self.headers).json()
+                         json=body, headers=headers).json()
         vlist = []
-        for k in data['data']['areaBoxList'][-1]['itemList']:
-            if k.get('doc', {}).get('id'):
+        for k in data['data']['areaBoxList'][0]['itemList']:
+            if k.get('doc', {}).get('id') and '外站' not in k.get('videoInfo', {}).get('subTitle'):
                 img_tag = k.get('videoInfo', {}).get('imgTag')
                 if img_tag is not None and isinstance(img_tag, str):
                     try:
@@ -251,7 +250,7 @@ class Spider(Spider):
                 pic = k.get('videoInfo', {}).get('imgUrl')
                 vlist.append({
                     'vod_id': k['doc']['id'],
-                    'vod_name': k['videoInfo']['title'],
+                    'vod_name': self.removeHtmlTags(k['videoInfo']['title']),
                     'vod_pic': pic,
                     'vod_year': tag.get('tag_2', {}).get('text', ''),
                     'vod_remarks': tag.get('tag_4', {}).get('text', '')
