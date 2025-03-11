@@ -239,8 +239,10 @@ class Spider(Spider):
         vlist = []
         vname=["电视剧", "电影", "综艺", "纪录片", "动漫", "少儿", "短剧"]
         v=data['data']['normalList']['itemList']
-        v.extend(data['data']['areaBoxList'][0]['itemList'])
-        for k in v:
+        d=data['data']['areaBoxList'][0]['itemList']
+        q=v+d
+        if v[0].get('doc') and v[0]['doc'].get('id') =='MainNeed':q=d+v
+        for k in q:
             if k.get('doc') and k.get('videoInfo') and k['doc'].get('id') and '外站' not in k['videoInfo'].get('subTitle') and k['videoInfo'].get('title') and k['videoInfo'].get('typeName') in vname:
                 img_tag = k.get('videoInfo', {}).get('imgTag')
                 if img_tag is not None and isinstance(img_tag, str):
