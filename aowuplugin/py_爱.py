@@ -75,13 +75,14 @@ class Spider(Spider):
         for i in data['items']:
             for j in i['video'][0]['data']:
                 id = j.get('firstId')
-                if id:
+                pic=j.get('prevue',{}).get('image_url') or j.get('album_image_url_hover')
+                if id and pic:
                     pu=j.get('prevue',{}).get('page_url') or j.get('page_url').split('?')[0]
                     id = f'{id}@{self.e64(pu)}'
                     vlist.append({
                         'vod_id': id,
                         'vod_name': j.get('display_name'),
-                        'vod_pic': j.get('prevue',{}).get('image_url') or j.get('album_image_url_hover'),
+                        'vod_pic': pic,
                         'vod_year': j.get('sns_score'),
                         'vod_remarks': j.get('dq_updatestatus') or j.get('rank_prefix')
                     })
